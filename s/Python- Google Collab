@@ -1,2 +1,0 @@
-# Exemplo de análise em Python
-hsil_prop = df[df['Tipo_Resultado'] == 'HSIL'].groupby('Faixa_Etaria').size() / df.groupby('Faixa_Etaria').size()
