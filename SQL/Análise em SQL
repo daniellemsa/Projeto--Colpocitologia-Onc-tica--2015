@@ -1,0 +1,68 @@
+SELECT *
+FROM exames
+-- Distribuição por faixa etária
+SELECT 
+    faixa_etaria,
+    COUNT(*) AS total_exames,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM exames), 2) AS percentual
+FROM exames
+GROUP BY faixa_etaria
+ORDER BY MIN(idade);
+
+-- Taxa de anormalidade por escolaridade e cor/raça
+SELECT 
+    escolaridade,
+    cor_raca,
+    COUNT(*) AS total,
+    SUM(CASE WHEN resultado = 'Anormal' THEN 1 ELSE 0 END) AS anormais,
+    ROUND(SUM(CASE WHEN resultado = 'Anormal' THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 2) AS taxa_anormalidade
+FROM exames
+GROUP BY escolaridade, cor_raca
+HAVING COUNT(*) > 10  -- Filtra grupos pequenos
+
+
+-- Evolução mensal das taxas de resultados
+SELECT 
+    EXTRACT(MONTH FROM data_exame) AS mes,
+    COUNT(*) AS total_exames,
+    ROUND(AVG(CASE WHEN resultado = 'Anormal' THEN 1 ELSE 0 END) * 100, 2) AS percentual_anormal
+FROM exames
+GROUP BY EXTRACT(MONTH FROM data_exame)
+ORDER BY mes;
+
+SELECT 
+    adequabilidade,
+    resultado,
+    COUNT(*) AS total,
+    ROUND(COUNT(*) * 100.0 / SUM(COUNT(*)) OVER (PARTITION BY adequabilidade), 2) AS percentual
+FROM exames
+GROUP BY adequabilidade, resultado
+ORDER BY adequabilidade, percentual DESC;
+
+--Consultas Avançadas
+ --Distribuição de HSIL/AIS por faixa etária
+SELECT 
+    faixa_etaria,
+    COUNT(*) AS total_hsil_ais,
+    ROUND(COUNT(*) * 100.0 / (SELECT COUNT(*) FROM exames WHERE faixa_etaria = e.faixa_etaria), 2) AS percentual
+FROM exames e
+WHERE tipo_resultado IN ('HSIL', 'AIS')
+GROUP BY faixa_etaria
+ORDER BY percentual DESC;
+
+-- Comparativo maio vs junho
+WITH dados_mes as (
+    SELECT 
+        EXTRACT(MONTH FROM data_exame) AS mes,
+        COUNT(*) AS total,
+        SUM(CASE WHEN resultado = 'Anormal' THEN 1 ELSE 0 END) AS anormais
+    FROM exames
+    GROUP BY EXTRACT(MONTH FROM data_exame)
+SELECT
+    a.mes,
+    a.total,
+    a.anormais,
+    a.anormais * 100.0 / a.total AS taxa_anormais,
+    (a.anormais - b.anormais) * 100.0 / b.anormais AS variacao_percentual
+FROM dados_mes a
+JOIN dados_mes b ON a.mes = 6 AND b.mes = 5;
