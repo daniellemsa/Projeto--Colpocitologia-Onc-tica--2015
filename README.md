@@ -28,7 +28,18 @@ A[Dados Brutos] --> B(SQL: Modelagem e Consultas)
 A --> C(Python: Análise Estatística)
 A --> D(Power BI: Visualização)
 
-/
+# Insights Encontrados
+### Distribuição de resultados anormais:
+
+- 4.2% HSIL em mulheres 40-49 anos vs 2.1% em 20-29 anos
+
+- 23.7% de exames com informação de escolaridade ausente
+
+### Problemas de qualidade:
+
+- 18% dos registros com campo "Idade" inconsistente
+
+- Dados faltantes em 34% dos campos de histórico clínico.
 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
